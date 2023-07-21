@@ -10,13 +10,16 @@ import {
     Group,
     Checkbox,
     ScrollArea,
+    Box,
+    Collapse,
     rem
 } from '@mantine/core'
-import { useListState } from '@mantine/hooks'
+import { useDisclosure } from '@mantine/hooks'
 import {
     IconPlus,
     IconSquareRoundedChevronLeftFilled,
-    IconSquareRoundedChevronRightFilled
+    IconSquareRoundedChevronRightFilled,
+    IconChevronDown
 } from '@tabler/icons-react'
 import { isAddress } from 'viem'
 import { notifications } from '@mantine/notifications'
@@ -26,9 +29,6 @@ const useStyles = createStyles((theme) => ({
     navigation: {
         display: 'flex',
         justifyContent: 'space-between'
-    },
-    networkWrapper: {
-        marginTop: theme.spacing.md
     },
     selectableNetwork: {
         zIndex: 1,
@@ -48,6 +48,11 @@ const useStyles = createStyles((theme) => ({
     unselectable: {
         userSelect: 'none',
         pointerEvents: 'none'
+    },
+    fullWidthLabel: {
+        '& span': {
+            width: '100%'
+        }
     }
 }))
 
@@ -75,6 +80,32 @@ const CheckboxWrapper = ({ key, network, networks, setNetworks }) => {
                 label={network.name}
             />
         </div>
+    )
+}
+
+const TokenSelector = ({ key, network, children }) => {
+    const { classes } = useStyles()
+    const [opened, { toggle }] = useDisclosure(false)
+
+    return (
+        <Box key={key}>
+            <Group position='center' mb={5}>
+                <Button onClick={toggle}
+                        variant='light'
+                        className={classes.fullWidthLabel}
+                        fullWidth={true}>
+                    <Group style={{ width: '100%' }} position='apart'>
+                        {children}
+                    </Group>
+                </Button>
+            </Group>
+
+            <Collapse in={opened}>
+                <Text>
+                    Hallo
+                </Text>
+            </Collapse>
+        </Box>
     )
 }
 
@@ -153,20 +184,39 @@ export default function Create() {
                         Select all networks you want to display
                     </Text>
 
-                    <ScrollArea h={320}>
-                        <div className={classes.networkWrapper}>
-                            {supportedNetworks.map((network) => (
-                                <CheckboxWrapper key={network.chainId}
-                                                 network={network}
-                                                 networks={networks}
-                                                 setNetworks={setNetworks} />
+                    <ScrollArea h={320} mt='sm'>
+                        {supportedNetworks.map((network) => (
+                            <CheckboxWrapper key={network.chainId}
+                                             network={network}
+                                             networks={networks}
+                                             setNetworks={setNetworks} />
+                        ))}
+                    </ScrollArea>
+                </>
+            )
+        } else if (step === 2) {
+            return (
+                <>
+                    <Title order={2}>
+                        Select your Tokens
+                    </Title>
+
+                    <Text c='dimmed'>
+                        Select all tokens you want to display native hurensohn toast
+                    </Text>
+
+                    <ScrollArea h={320} mt='sm'>
+                        <div>
+                            {networks.map((network) => (
+                                <TokenSelector key={network.id} network={network}>
+                                    {network.name}
+                                    <IconChevronDown size={18} />
+                                </TokenSelector>
                             ))}
                         </div>
                     </ScrollArea>
                 </>
             )
-        } else if (step === 2) {
-
         }
     }
 
