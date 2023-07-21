@@ -20,6 +20,7 @@ import {
 } from '@tabler/icons-react'
 import { isAddress } from 'viem'
 import { notifications } from '@mantine/notifications'
+import supportedNetworks from '@/data/networks'
 
 const useStyles = createStyles((theme) => ({
     navigation: {
@@ -49,31 +50,26 @@ const useStyles = createStyles((theme) => ({
         pointerEvents: 'none'
     }
 }))
-const supportedNetworks = [
-    {
-        name: 'Ethereum',
-        chainId: 1,
-        checked: false
-    },
-    {
-        name: 'Binance Smart Chain',
-        chainId: 56,
-        checked: false
-    }
-]
 
-const CheckboxWrapper = ({ key, network }) => {
+const CheckboxWrapper = ({ key, network, networks, setNetworks }) => {
     const { classes } = useStyles()
-    const [checked, setChecked] = useState(false)
+    const [checked, setChecked] = useState(networks.some((item) => item.chainId === network.chainId))
 
     return (
         <div key={key} className={classes.selectableNetwork}
              onClick={() => {
-                 console.log('clicked')
                  setChecked(!checked)
+                 setNetworks((prev) => {
+                     if (checked) {
+                         return prev.filter((item) => item.chainId !== network.chainId)
+                     } else {
+                         return [...prev, network]
+                     }
+                 })
              }}>
             <Checkbox
-                onChange={() => {}}
+                onChange={() => {
+                }}
                 checked={checked}
                 className={classes.unselectable}
                 label={network.name}
@@ -85,7 +81,6 @@ const CheckboxWrapper = ({ key, network }) => {
 
 export default function Create() {
     const { classes } = useStyles()
-    const [values, handlers] = useListState(supportedNetworks)
     const [step, setStep] = useState(1)
     const [address, setAddress] = useState('')
     const [networks, setNetworks] = useState([])
@@ -109,6 +104,16 @@ export default function Create() {
             } else {
                 setStep(1)
             }
+        } else if (step === 1) {
+            if (networks.length === 0) {
+                notifications.show({
+                    title: 'No networks selected',
+                    message: 'Please select at least one network',
+                    color: 'red'
+                })
+            } else {
+                setStep(2)
+            }
         }
     }
 
@@ -124,7 +129,6 @@ export default function Create() {
                     </Text>
 
                     <Input
-                        icon={<IconPlus size={18} />}
                         mt={12}
                         variant='filled'
                         placeholder='0x0000000000000000000000000000000000000000'
@@ -151,9 +155,11 @@ export default function Create() {
 
                     <ScrollArea h={320}>
                         <div className={classes.networkWrapper}>
-                            {values.map((network) => (
+                            {supportedNetworks.map((network) => (
                                 <CheckboxWrapper key={network.chainId}
-                                                 network={network} />
+                                                 network={network}
+                                                 networks={networks}
+                                                 setNetworks={setNetworks} />
                             ))}
                         </div>
                     </ScrollArea>
@@ -166,7 +172,7 @@ export default function Create() {
 
     return (
         <Container size='xs' style={{ width: '100%' }}>
-            <Paper p='sm'>
+            <Paper p='sm' withBorder={true}>
                 {getStep()}
             </Paper>
 

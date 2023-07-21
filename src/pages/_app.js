@@ -79,6 +79,7 @@ export default function App({ Component, pageProps }) {
 
             <Web3Modal projectId={projectId}
                        ethereumClient={ethereumClient}
+                       themeMode='light'
                        themeVariables={{
                            '--w3m-accent-color': '#f8f0fc',
                            '--w3m-background-color': '#f8f0fc',
