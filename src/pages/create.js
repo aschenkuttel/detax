@@ -1,5 +1,18 @@
 import { useState } from 'react'
-import { createStyles, Container, Button, Text, Title, Paper, Input, Group } from '@mantine/core'
+import {
+    createStyles,
+    Container,
+    Button,
+    Text,
+    Title,
+    Paper,
+    Input,
+    Group,
+    Checkbox,
+    ScrollArea,
+    rem
+} from '@mantine/core'
+import { useListState } from '@mantine/hooks'
 import {
     IconPlus,
     IconSquareRoundedChevronLeftFilled,
@@ -13,17 +26,69 @@ const useStyles = createStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-between'
     },
+    networkWrapper: {
+        marginTop: theme.spacing.md
+    },
+    selectableNetwork: {
+        zIndex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        padding: rem(7),
+        borderRadius: theme.radius.md,
+        '&:hover': {
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0]
+        }
+    },
     disabled: {
         '&:disabled': {
             backgroundColor: 'transparent'
         }
+    },
+    unselectable: {
+        userSelect: 'none',
+        pointerEvents: 'none'
     }
 }))
+const supportedNetworks = [
+    {
+        name: 'Ethereum',
+        chainId: 1,
+        checked: false
+    },
+    {
+        name: 'Binance Smart Chain',
+        chainId: 56,
+        checked: false
+    }
+]
+
+const CheckboxWrapper = ({ key, network }) => {
+    const { classes } = useStyles()
+    const [checked, setChecked] = useState(false)
+
+    return (
+        <div key={key} className={classes.selectableNetwork}
+             onClick={() => {
+                 console.log('clicked')
+                 setChecked(!checked)
+             }}>
+            <Checkbox
+                onChange={() => {}}
+                checked={checked}
+                className={classes.unselectable}
+                label={network.name}
+            />
+        </div>
+    )
+}
+
 
 export default function Create() {
     const { classes } = useStyles()
+    const [values, handlers] = useListState(supportedNetworks)
+    const [step, setStep] = useState(1)
     const [address, setAddress] = useState('')
-    const [step, setStep] = useState(0)
+    const [networks, setNetworks] = useState([])
 
     const stepBack = () => {
         if (step > 0) {
@@ -41,7 +106,6 @@ export default function Create() {
                     icon: <IconPlus size={18} />,
                     autoClose: 5000
                 })
-                return false
             } else {
                 setStep(1)
             }
@@ -76,7 +140,25 @@ export default function Create() {
                 </>
             )
         } else if (step === 1) {
+            return (
+                <>
+                    <Title order={2}>
+                        Select your networks
+                    </Title>
+                    <Text c='dimmed'>
+                        Select all networks you want to display
+                    </Text>
 
+                    <ScrollArea h={320}>
+                        <div className={classes.networkWrapper}>
+                            {values.map((network) => (
+                                <CheckboxWrapper key={network.chainId}
+                                                 network={network} />
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </>
+            )
         } else if (step === 2) {
 
         }
