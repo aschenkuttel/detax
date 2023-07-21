@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import {
     createStyles,
     Container,
@@ -10,7 +11,7 @@ import {
     ThemeIcon,
     rem
 } from '@mantine/core'
-import { IconCheck } from '@tabler/icons-react'
+import {IconCheck} from '@tabler/icons-react'
 
 const useStyles = createStyles((theme) => ({
     inner: {
@@ -56,25 +57,25 @@ const useStyles = createStyles((theme) => ({
 
     highlight: {
         position: 'relative',
-        backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
+        backgroundColor: theme.fn.variant({variant: 'light', color: theme.primaryColor}).background,
         borderRadius: theme.radius.sm,
         padding: `${rem(4)} ${rem(12)}`
     }
 }))
 
 export default function Hero() {
-    const { classes } = useStyles()
+    const {classes} = useStyles()
     return (
         <div>
             <Container>
                 <div className={classes.inner}>
                     <div className={classes.content}>
                         <Title className={classes.title}>
-                            A <span className={classes.highlight}>modern</span> React <br /> components library
+                            Let <span className={classes.highlight}>DeTax</span> keep track of your transactions
                         </Title>
                         <Text color='dimmed' mt='md'>
-                            Build fully functional accessible web applications faster than ever – Mantine includes
-                            more than 120 customizable components and hooks to cover you in any situation
+                            Crypto taxes made simple. Aggregate transactions across all chains and have a headache
+                            free tax filing.
                         </Text>
 
                         <List
@@ -83,35 +84,36 @@ export default function Hero() {
                             size='sm'
                             icon={
                                 <ThemeIcon size={20} radius='xl'>
-                                    <IconCheck size={rem(12)} stroke={1.5} />
+                                    <IconCheck size={rem(12)} stroke={1.5}/>
                                 </ThemeIcon>
                             }
                         >
                             <List.Item>
-                                <b>TypeScript based</b> – build type safe applications, all components and hooks
-                                export types
+                                <b>Easy to use</b>
                             </List.Item>
                             <List.Item>
-                                <b>Free and open source</b> – all packages have MIT license, you can use Mantine in
-                                any project
+                                <b>Instantly create reports</b>
                             </List.Item>
                             <List.Item>
-                                <b>No annoying focus ring</b> – focus ring will appear only when user navigates with
-                                keyboard
+                                <b>Fully open source</b>
                             </List.Item>
                         </List>
 
                         <Group mt={30}>
-                            <Button radius='xl' size='md' className={classes.control}>
-                                Get started
-                            </Button>
+                            <Link rel="stylesheet" href="/create">
+                                <Button radius='xl' size='md' className={classes.control}>
+                                    Get started
+                                </Button>
+                            </Link>
+                            <Link rel="stylesheet" href="/info">
                             <Button variant='default' radius='xl' size='md' className={classes.control}>
-                                Source code
+                                Learn more
                             </Button>
+                            </Link>
                         </Group>
                     </div>
                     <Image src='/hero.png' width={420} height={420}
-                           className={classes.image} alt='whatever' />
+                           className={classes.image} alt='whatever'/>
                 </div>
             </Container>
         </div>
