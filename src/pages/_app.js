@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { createStyles, MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
+import { init, useQuery } from '@airstack/airstack-react'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
@@ -53,6 +54,9 @@ const wagmiConfig = createConfig({
 const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
 export default function App({ Component, pageProps }) {
+    // (: TODO server component
+    init('cf158c5c016a4372956cff76d697071a')
+
     return (
         <>
             <Head>

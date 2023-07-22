@@ -10,8 +10,11 @@ import {
     Group,
     Checkbox,
     ScrollArea,
+    Stack,
     Box,
+    Flex,
     Collapse,
+    Divider,
     rem
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
@@ -23,14 +26,17 @@ import {
 } from '@tabler/icons-react'
 import { isAddress } from 'viem'
 import { notifications } from '@mantine/notifications'
+import { fetchQuery } from '@airstack/airstack-react'
 import supportedNetworks from '@/data/networks'
+import fetchToken from '@/utils/fetchToken'
+import { tokensQuery } from '@/utils/queries'
 
 const useStyles = createStyles((theme) => ({
     navigation: {
         display: 'flex',
         justifyContent: 'space-between'
     },
-    selectableNetwork: {
+    selectableCheckbox: {
         zIndex: 1,
         display: 'flex',
         alignItems: 'center',
@@ -53,39 +59,113 @@ const useStyles = createStyles((theme) => ({
         '& span': {
             width: '100%'
         }
+    },
+    flexOne: {
+        flex: 1
     }
 }))
 
-const CheckboxWrapper = ({ key, network, networks, setNetworks }) => {
+const CheckboxWrapper = ({ key, label, checked, onClick }) => {
     const { classes } = useStyles()
-    const [checked, setChecked] = useState(networks.some((item) => item.chainId === network.chainId))
 
     return (
-        <div key={key} className={classes.selectableNetwork}
-             onClick={() => {
-                 setChecked(!checked)
-                 setNetworks((prev) => {
-                     if (checked) {
-                         return prev.filter((item) => item.chainId !== network.chainId)
-                     } else {
-                         return [...prev, network]
-                     }
-                 })
-             }}>
+        <div key={key} className={classes.selectableCheckbox}
+             onClick={onClick}>
             <Checkbox
                 onChange={() => {
                 }}
                 checked={checked}
                 className={classes.unselectable}
-                label={network.name}
-            />
+                label={label} />
         </div>
     )
 }
 
-const TokenSelector = ({ key, network, children }) => {
+const TokenCheckbox = ({ key, network, token, tokens, setTokens }) => {
+    const [checked, setChecked] = useState(tokens[network.chainId]?.some((item) => item.address === token.address))
+
+    return <CheckboxWrapper
+        key={key}
+        label={
+            <Group spacing={8}>
+                <Text>{token.symbol}</Text>
+                <Text c='dimmed'>{token.name}</Text>
+            </Group>
+        }
+        checked={checked}
+        onClick={() => {
+            setChecked(!checked)
+            setTokens((prev) => {
+                let chainTokens = prev[network.chainId] || []
+
+                if (checked) {
+                    chainTokens = chainTokens.filter((item) => item.address !== token.address)
+                } else {
+                    chainTokens.push(token)
+                }
+
+                return { ...prev, [network.chainId]: chainTokens }
+            })
+        }}
+    />
+}
+
+const NetworkCheckbox = ({ key, networks, network, setNetworks }) => {
+    const [checked, setChecked] = useState(networks.some((item) => item.chainId === network.chainId))
+
+    return <CheckboxWrapper
+        key={key}
+        label={network.name}
+        checked={checked}
+        onClick={() => {
+            setChecked(!checked)
+            setNetworks((prev) => {
+                if (checked) {
+                    return prev.filter((item) => item.chainId !== network.chainId)
+                } else {
+                    return [...prev, network]
+                }
+            })
+        }}
+    />
+}
+
+const TokenSelector = ({ key, network, tokens, setTokens, children }) => {
     const { classes } = useStyles()
     const [opened, { toggle }] = useDisclosure(false)
+    const [selectableTokens, setSelectableTokens] = useState([...network.supportedTokens])
+    const [importAddress, setImportAddress] = useState('')
+
+    const addToken = async () => {
+        if (!isAddress(importAddress)) {
+            return notifications.show({
+                title: 'Invalid Address',
+                message: 'Please enter a valid address',
+                color: 'red'
+            })
+        }
+
+        const token = await fetchToken(network, importAddress)
+
+        if (token !== null) {
+            if (selectableTokens.some((item) => item.address === token.address)) {
+                return notifications.show({
+                    title: 'Token Already Added',
+                    message: 'This token is already added to the list',
+                    color: 'red'
+                })
+            } else {
+                setSelectableTokens((prev) => [...prev, token])
+            }
+            setImportAddress('')
+        } else {
+            notifications.show({
+                title: 'Invalid Address',
+                message: 'Please enter a valid ERC20 Token Address',
+                color: 'red'
+            })
+        }
+    }
 
     return (
         <Box key={key}>
@@ -101,9 +181,34 @@ const TokenSelector = ({ key, network, children }) => {
             </Group>
 
             <Collapse in={opened}>
-                <Text>
-                    Hallo
-                </Text>
+                <Flex mb='sm' direction='column'>
+                    {selectableTokens && selectableTokens.map((token) => (
+                        <TokenCheckbox key={token.address}
+                                       token={token}
+                                       tokens={tokens}
+                                       setTokens={setTokens}
+                                       network={network} />
+                    ))}
+                </Flex>
+
+                {selectableTokens && <Divider size='xs' opacity={0.5} />}
+
+                <Group position='apart' mt='sm'>
+                    <Input
+                        label='Import Token'
+                        className={classes.flexOne}
+                        value={importAddress}
+                        onKeyDown={async (event) =>
+                            event.key === 'Enter' && await addToken()
+                        }
+                        onChange={(event) => setImportAddress(event.currentTarget.value)}
+                        placeholder='0x0000000000000000000000000000000000000000'
+                    />
+
+                    <Button variant='light' onClick={addToken}>
+                        Import
+                    </Button>
+                </Group>
             </Collapse>
         </Box>
     )
@@ -112,9 +217,71 @@ const TokenSelector = ({ key, network, children }) => {
 
 export default function Create() {
     const { classes } = useStyles()
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(0)
+    const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState('')
     const [networks, setNetworks] = useState([])
+    const [tokens, setTokens] = useState({})
+
+    const createReport = async () => {
+        setLoading(true)
+
+        const { data, error } = await fetchQuery(tokensQuery, {
+            address: address,
+            tokens: tokens[1].map((item) => item.address)
+        })
+
+        if (error) {
+            console.log(address)
+            console.log(error)
+            setLoading(false)
+            return notifications.show({
+                title: 'Error',
+                message: 'An error occurred while generating the report'
+            })
+        }
+
+        const response = await fetch('/api/generate_pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: data
+            }),
+        })
+
+        if (response.status === 200) {
+            const buffer = await response.blob()
+
+            console.log(buffer)
+
+            // Create blob link to download
+            const url = window.webkitURL.createObjectURL(
+                new Blob([buffer], { type: 'application/pdf' })
+            )
+
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute(
+                'download',
+                `report.pdf`
+            )
+
+            // Append to html link element page
+            document.body.appendChild(link)
+
+            // Start download
+            link.click()
+
+            // Clean up and remove the link
+            link.parentNode.removeChild(link)
+
+            setLoading(false)
+        }
+
+        setLoading(false)
+    }
 
     const stepBack = () => {
         if (step > 0) {
@@ -128,9 +295,7 @@ export default function Create() {
                 notifications.show({
                     title: 'Invalid address',
                     message: 'Please enter a valid address',
-                    color: 'red',
-                    icon: <IconPlus size={18} />,
-                    autoClose: 5000
+                    color: 'red'
                 })
             } else {
                 setStep(1)
@@ -145,6 +310,20 @@ export default function Create() {
             } else {
                 setStep(2)
             }
+        } else if (step === 2) {
+            const totalTokens = Object.values(tokens).map((item) => item.length).reduce((a, b) => a + b, 0)
+
+            if (totalTokens === 0) {
+                notifications.show({
+                    title: 'No tokens selected',
+                    message: 'Please select at least one token',
+                    color: 'red'
+                })
+            } else {
+                setStep(3)
+            }
+        } else if (step === 3) {
+
         }
     }
 
@@ -161,7 +340,6 @@ export default function Create() {
 
                     <Input
                         mt={12}
-                        variant='filled'
                         placeholder='0x0000000000000000000000000000000000000000'
                         width='100%'
                         value={address}
@@ -186,7 +364,7 @@ export default function Create() {
 
                     <ScrollArea h={320} mt='sm'>
                         {supportedNetworks.map((network) => (
-                            <CheckboxWrapper key={network.chainId}
+                            <NetworkCheckbox key={network.chainId}
                                              network={network}
                                              networks={networks}
                                              setNetworks={setNetworks} />
@@ -208,7 +386,10 @@ export default function Create() {
                     <ScrollArea h={320} mt='sm'>
                         <div>
                             {networks.map((network) => (
-                                <TokenSelector key={network.id} network={network}>
+                                <TokenSelector key={network.chainId}
+                                               network={network}
+                                               tokens={tokens}
+                                               setTokens={setTokens}>
                                     {network.name}
                                     <IconChevronDown size={18} />
                                 </TokenSelector>
@@ -216,6 +397,20 @@ export default function Create() {
                         </div>
                     </ScrollArea>
                 </>
+            )
+        } else if (step === 3) {
+            return (
+                <Stack spacing='sm'>
+                    <Button variant='light' size='lg'
+                            loading={loading}
+                            onClick={createReport}>
+                        Create Report
+                    </Button>
+
+                    <Button variant='light' size='lg' disabled>
+                        Add another address
+                    </Button>
+                </Stack>
             )
         }
     }
@@ -228,14 +423,15 @@ export default function Create() {
 
             <Group mt='sm' position='apart'>
                 <Button variant='subtle' onClick={stepBack} className={classes.disabled}
-                        disabled={step === 0}>
+                        disabled={step === 0 || loading}>
                     <IconSquareRoundedChevronLeftFilled />
                     <Text ml={6}>
                         Back
                     </Text>
                 </Button>
 
-                <Button variant='subtle' onClick={validateStep} className={classes.disabled}>
+                <Button variant='subtle' onClick={validateStep} className={classes.disabled}
+                        disabled={step === 3 || loading}>
                     <Text mr={6}>
                         Continue
                     </Text>
