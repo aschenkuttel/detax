@@ -1,4 +1,4 @@
-import { useState, forwardRef } from 'react'
+import { useState, forwardRef, useContext } from 'react'
 import {
     createStyles,
     Container,
@@ -18,9 +18,7 @@ import {
     Divider,
     rem
 } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
 import {
-    IconPlus,
     IconSquareRoundedChevronLeftFilled,
     IconSquareRoundedChevronRightFilled,
     IconChevronDown
@@ -32,6 +30,7 @@ import { countriesData, flags } from '@/data/countries'
 import supportedNetworks from '@/data/networks'
 import fetchToken from '@/utils/fetchToken'
 import { tokensQuery } from '@/utils/queries'
+import { Context } from '@/components/Context'
 
 const useStyles = createStyles((theme) => ({
     navigation: {
@@ -244,6 +243,7 @@ const CountryItem = forwardRef(
 
 export default function Create() {
     const { classes } = useStyles()
+    const { addReport } = useContext(Context)
     const [step, setStep] = useState(0)
     const [loading, setLoading] = useState(false)
     const [country, setCountry] = useState(null)
@@ -303,6 +303,13 @@ export default function Create() {
 
             // Clean up and remove the link
             link.parentNode.removeChild(link)
+
+            addReport({
+                address: address,
+                country: country,
+                networks: networks,
+                tokens: tokens[1]
+            })
 
             setLoading(false)
         }
