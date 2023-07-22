@@ -61,7 +61,7 @@ export default function App({ Component, pageProps }) {
         <>
             <Head>
                 <title>DeTax</title>
-                <link rel='icon' href='/taxes.svg' sizes='any' />
+                <link rel='icon' href='/favicon.png' sizes='any' />
                 <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
             </Head>
 

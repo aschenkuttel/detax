@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, forwardRef } from 'react'
 import {
     createStyles,
     Container,
@@ -10,6 +10,7 @@ import {
     Group,
     Checkbox,
     ScrollArea,
+    Select,
     Stack,
     Box,
     Flex,
@@ -27,6 +28,7 @@ import {
 import { isAddress } from 'viem'
 import { notifications } from '@mantine/notifications'
 import { fetchQuery } from '@airstack/airstack-react'
+import { countriesData, flags } from '@/data/countries'
 import supportedNetworks from '@/data/networks'
 import fetchToken from '@/utils/fetchToken'
 import { tokensQuery } from '@/utils/queries'
@@ -214,11 +216,28 @@ const TokenSelector = ({ key, network, tokens, setTokens, children }) => {
     )
 }
 
+// eslint-disable-next-line react/display-name
+const CountryItem = forwardRef(
+    ({ label, value, ...others }, ref) => {
+        const Flag = flags[value]
+
+        return (
+            <div ref={ref} {...others}>
+                <Group position='start'>
+                    <Flag />
+                    <Text>{label}</Text>
+                </Group>
+            </div>
+        )
+    }
+)
+
 
 export default function Create() {
     const { classes } = useStyles()
     const [step, setStep] = useState(0)
     const [loading, setLoading] = useState(false)
+    const [country, setCountry] = useState(null)
     const [address, setAddress] = useState('')
     const [networks, setNetworks] = useState([])
     const [tokens, setTokens] = useState({})
@@ -232,8 +251,6 @@ export default function Create() {
         })
 
         if (error) {
-            console.log(address)
-            console.log(error)
             setLoading(false)
             return notifications.show({
                 title: 'Error',
@@ -248,13 +265,11 @@ export default function Create() {
             },
             body: JSON.stringify({
                 data: data
-            }),
+            })
         })
 
         if (response.status === 200) {
             const buffer = await response.blob()
-
-            console.log(buffer)
 
             // Create blob link to download
             const url = window.webkitURL.createObjectURL(
@@ -291,6 +306,16 @@ export default function Create() {
 
     const validateStep = () => {
         if (step === 0) {
+            if (country === null) {
+                return notifications.show({
+                    title: 'No country selected',
+                    message: 'Please select a country',
+                    color: 'red'
+                })
+            }
+
+            setStep(1)
+        } else if (step === 1) {
             if (!isAddress(address)) {
                 notifications.show({
                     title: 'Invalid address',
@@ -298,9 +323,9 @@ export default function Create() {
                     color: 'red'
                 })
             } else {
-                setStep(1)
+                setStep(2)
             }
-        } else if (step === 1) {
+        } else if (step === 2) {
             if (networks.length === 0) {
                 notifications.show({
                     title: 'No networks selected',
@@ -308,9 +333,9 @@ export default function Create() {
                     color: 'red'
                 })
             } else {
-                setStep(2)
+                setStep(3)
             }
-        } else if (step === 2) {
+        } else if (step === 3) {
             const totalTokens = Object.values(tokens).map((item) => item.length).reduce((a, b) => a + b, 0)
 
             if (totalTokens === 0) {
@@ -320,15 +345,37 @@ export default function Create() {
                     color: 'red'
                 })
             } else {
-                setStep(3)
+                setStep(4)
             }
-        } else if (step === 3) {
+        } else if (step === 4) {
 
         }
     }
 
     const getStep = () => {
         if (step === 0) {
+            return (
+                <>
+                    <Title order={2}>
+                        Select your country
+                    </Title>
+
+                    <Text c='dimmed'>
+                        Select the country you want to create a report for
+                    </Text>
+
+                    <Select
+                        mt={8}
+                        placeholder='Select'
+                        itemComponent={CountryItem}
+                        clearable
+                        value={country}
+                        onChange={(value) => setCountry(value)}
+                        data={countriesData}
+                    />
+                </>
+            )
+        } else if (step === 1) {
             return (
                 <>
                     <Title order={2}>
@@ -339,7 +386,7 @@ export default function Create() {
                     </Text>
 
                     <Input
-                        mt={12}
+                        mt={8}
                         placeholder='0x0000000000000000000000000000000000000000'
                         width='100%'
                         value={address}
@@ -352,7 +399,7 @@ export default function Create() {
                     />
                 </>
             )
-        } else if (step === 1) {
+        } else if (step === 2) {
             return (
                 <>
                     <Title order={2}>
@@ -372,7 +419,7 @@ export default function Create() {
                     </ScrollArea>
                 </>
             )
-        } else if (step === 2) {
+        } else if (step === 3) {
             return (
                 <>
                     <Title order={2}>
@@ -398,7 +445,7 @@ export default function Create() {
                     </ScrollArea>
                 </>
             )
-        } else if (step === 3) {
+        } else if (step === 4) {
             return (
                 <Stack spacing='sm'>
                     <Button variant='light' size='lg'
@@ -431,7 +478,7 @@ export default function Create() {
                 </Button>
 
                 <Button variant='subtle' onClick={validateStep} className={classes.disabled}
-                        disabled={step === 3 || loading}>
+                        disabled={step === 4 || loading}>
                     <Text mr={6}>
                         Continue
                     </Text>
