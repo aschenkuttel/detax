@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { createStyles, Header, Container, Group, Burger, rem } from '@mantine/core'
+import { createStyles, Header, Container, Group, Burger, Text, rem } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import ConnectButton from '@/components/Connect'
 
@@ -44,6 +45,13 @@ const useStyles = createStyles((theme) => ({
             backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
             color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color
         }
+    },
+
+    logoTitle: {
+        fontWeight: 700,
+        fontSize: theme.fontSizes.xl,
+        lineHeight: 1,
+        color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[9],
     }
 }))
 
@@ -73,13 +81,16 @@ export default function HeaderSimple() {
     return (
         <Header height={60} zIndex={2}>
             <Container className={classes.header} size='xl'>
-                <p>LOGO</p>
+                <Group spacing='sm' align='end'>
+                    <Image src='/favicon.png' width={24} height={24} />
+                    <Text className={classes.logoTitle}>DeTax</Text>
+                </Group>
 
                 <Group spacing={5} className={classes.links}>
                     {items}
                 </Group>
 
-                <ConnectButton/>
+                <ConnectButton />
                 <Burger opened={opened} onClick={toggle} className={classes.burger} size='sm' />
             </Container>
         </Header>

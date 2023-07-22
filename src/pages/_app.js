@@ -1,11 +1,7 @@
 import Head from 'next/head'
 import { createStyles, MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
-import { init, useQuery } from '@airstack/airstack-react'
-import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
-import { Web3Modal } from '@web3modal/react'
-import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import { mainnet, polygon, mantle } from 'wagmi/chains'
+import { init } from '@airstack/airstack-react'
 import Header from '@/components/Header'
 import { ContextProvider } from '@/components/Context'
 
