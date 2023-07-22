@@ -1,4 +1,4 @@
-import { useState, forwardRef } from 'react'
+import {useState, forwardRef} from 'react'
 import {
     createStyles,
     Container,
@@ -18,20 +18,20 @@ import {
     Divider,
     rem
 } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import {useDisclosure} from '@mantine/hooks'
 import {
     IconPlus,
     IconSquareRoundedChevronLeftFilled,
     IconSquareRoundedChevronRightFilled,
     IconChevronDown
 } from '@tabler/icons-react'
-import { isAddress } from 'viem'
-import { notifications } from '@mantine/notifications'
-import { fetchQuery } from '@airstack/airstack-react'
-import { countriesData, flags } from '@/data/countries'
+import {isAddress} from 'viem'
+import {notifications} from '@mantine/notifications'
+import {fetchQuery} from '@airstack/airstack-react'
+import {countriesData, flags} from '@/data/countries'
 import supportedNetworks from '@/data/networks'
 import fetchToken from '@/utils/fetchToken'
-import { tokensQuery } from '@/utils/queries'
+import {tokensQuery} from '@/utils/queries'
 
 const useStyles = createStyles((theme) => ({
     navigation: {
@@ -67,8 +67,8 @@ const useStyles = createStyles((theme) => ({
     }
 }))
 
-const CheckboxWrapper = ({ key, label, checked, onClick }) => {
-    const { classes } = useStyles()
+const CheckboxWrapper = ({key, label, checked, onClick}) => {
+    const {classes} = useStyles()
 
     return (
         <div key={key} className={classes.selectableCheckbox}
@@ -78,12 +78,12 @@ const CheckboxWrapper = ({ key, label, checked, onClick }) => {
                 }}
                 checked={checked}
                 className={classes.unselectable}
-                label={label} />
+                label={label}/>
         </div>
     )
 }
 
-const TokenCheckbox = ({ key, network, token, tokens, setTokens }) => {
+const TokenCheckbox = ({key, network, token, tokens, setTokens}) => {
     const [checked, setChecked] = useState(tokens[network.chainId]?.some((item) => item.address === token.address))
 
     return <CheckboxWrapper
@@ -106,13 +106,13 @@ const TokenCheckbox = ({ key, network, token, tokens, setTokens }) => {
                     chainTokens.push(token)
                 }
 
-                return { ...prev, [network.chainId]: chainTokens }
+                return {...prev, [network.chainId]: chainTokens}
             })
         }}
     />
 }
 
-const NetworkCheckbox = ({ key, networks, network, setNetworks }) => {
+const NetworkCheckbox = ({key, networks, network, setNetworks}) => {
     const [checked, setChecked] = useState(networks.some((item) => item.chainId === network.chainId))
 
     return <CheckboxWrapper
@@ -132,9 +132,9 @@ const NetworkCheckbox = ({ key, networks, network, setNetworks }) => {
     />
 }
 
-const TokenSelector = ({ key, network, tokens, setTokens, children }) => {
-    const { classes } = useStyles()
-    const [opened, { toggle }] = useDisclosure(false)
+const TokenSelector = ({key, network, tokens, setTokens, children}) => {
+    const {classes} = useStyles()
+    const [opened, {toggle}] = useDisclosure(false)
     const [selectableTokens, setSelectableTokens] = useState([...network.supportedTokens])
     const [importAddress, setImportAddress] = useState('')
 
@@ -176,7 +176,7 @@ const TokenSelector = ({ key, network, tokens, setTokens, children }) => {
                         variant='light'
                         className={classes.fullWidthLabel}
                         fullWidth={true}>
-                    <Group style={{ width: '100%' }} position='apart'>
+                    <Group style={{width: '100%'}} position='apart'>
                         {children}
                     </Group>
                 </Button>
@@ -189,11 +189,11 @@ const TokenSelector = ({ key, network, tokens, setTokens, children }) => {
                                        token={token}
                                        tokens={tokens}
                                        setTokens={setTokens}
-                                       network={network} />
+                                       network={network}/>
                     ))}
                 </Flex>
 
-                {selectableTokens && <Divider size='xs' opacity={0.5} />}
+                {selectableTokens && <Divider size='xs' opacity={0.5}/>}
 
                 <Group position='apart' mt='sm'>
                     <Input
@@ -218,13 +218,13 @@ const TokenSelector = ({ key, network, tokens, setTokens, children }) => {
 
 // eslint-disable-next-line react/display-name
 const CountryItem = forwardRef(
-    ({ label, value, ...others }, ref) => {
+    ({label, value, ...others}, ref) => {
         const Flag = flags[value]
 
         return (
             <div ref={ref} {...others}>
                 <Group position='start'>
-                    <Flag />
+                    <Flag/>
                     <Text>{label}</Text>
                 </Group>
             </div>
@@ -234,7 +234,7 @@ const CountryItem = forwardRef(
 
 
 export default function Create() {
-    const { classes } = useStyles()
+    const {classes} = useStyles()
     const [step, setStep] = useState(0)
     const [loading, setLoading] = useState(false)
     const [country, setCountry] = useState(null)
@@ -245,7 +245,7 @@ export default function Create() {
     const createReport = async () => {
         setLoading(true)
 
-        const { data, error } = await fetchQuery(tokensQuery, {
+        const {data, error} = await fetchQuery(tokensQuery, {
             address: address,
             tokens: tokens[1].map((item) => item.address)
         })
@@ -273,7 +273,7 @@ export default function Create() {
 
             // Create blob link to download
             const url = window.webkitURL.createObjectURL(
-                new Blob([buffer], { type: 'application/pdf' })
+                new Blob([buffer], {type: 'application/pdf'})
             )
 
             const link = document.createElement('a')
@@ -357,11 +357,14 @@ export default function Create() {
             return (
                 <>
                     <Title order={2}>
-                        Select your country
+                        1. Select your country
                     </Title>
 
                     <Text c='dimmed'>
-                        Select the country you want to create a report for
+                        Initiate the process by specifying your country of residence.
+                        This step is crucial as tax regulations vary widely by jurisdiction.
+                        Knowing your location allows DeTax to tailor its service according to your
+                        local tax laws and provide the most accurate tax report possible.
                     </Text>
 
                     <Select
@@ -379,11 +382,13 @@ export default function Create() {
             return (
                 <>
                     <Title order={2}>
-                        The address
+                        2. The address
                     </Title>
                     <Text c='dimmed'>
-                        Enter the address you want to create a report for
-                    </Text>
+                        Proceed by entering the address for which
+                        you want to generate a tax report. This is typically the public address
+                        of your crypto wallet. By inputting this, DeTax can pinpoint your specific
+                        transaction history and gather the relevant data.</Text>
 
                     <Input
                         mt={8}
@@ -403,18 +408,20 @@ export default function Create() {
             return (
                 <>
                     <Title order={2}>
-                        Select your networks
+                        3. Select your networks
                     </Title>
                     <Text c='dimmed'>
-                        Select all networks you want to display
-                    </Text>
+                        Select the networks you want included in the report. Each blockchain network
+                        (like Ethereum, Polygon, etc.) handles transactions independently, and you may
+                        have different tokens across them. Select all pertinent networks to ensure your
+                        report is comprehensive. </Text>
 
                     <ScrollArea h={320} mt='sm'>
                         {supportedNetworks.map((network) => (
                             <NetworkCheckbox key={network.chainId}
                                              network={network}
                                              networks={networks}
-                                             setNetworks={setNetworks} />
+                                             setNetworks={setNetworks}/>
                         ))}
                     </ScrollArea>
                 </>
@@ -423,12 +430,14 @@ export default function Create() {
             return (
                 <>
                     <Title order={2}>
-                        Select your Tokens
+                        4. Select your Tokens
                     </Title>
 
                     <Text c='dimmed'>
-                        Select all tokens you want to display native hurensohn toast
-                    </Text>
+                        Specify which tokens you want to include in your tax report. Native tokens (the primary currency
+                        of each network, such as ETH for Ethereum) are automatically
+                        included, but you can manually add any other tokens you hold. This way, DeTax ensures your
+                        report is both accurate and customized to your needs. </Text>
 
                     <ScrollArea h={320} mt='sm'>
                         <div>
@@ -438,7 +447,7 @@ export default function Create() {
                                                tokens={tokens}
                                                setTokens={setTokens}>
                                     {network.name}
-                                    <IconChevronDown size={18} />
+                                    <IconChevronDown size={18}/>
                                 </TokenSelector>
                             ))}
                         </div>
@@ -463,7 +472,7 @@ export default function Create() {
     }
 
     return (
-        <Container size='xs' style={{ width: '100%' }}>
+        <Container size='xs' style={{width: '100%'}}>
             <Paper p='sm' withBorder={true}>
                 {getStep()}
             </Paper>
@@ -471,7 +480,7 @@ export default function Create() {
             <Group mt='sm' position='apart'>
                 <Button variant='subtle' onClick={stepBack} className={classes.disabled}
                         disabled={step === 0 || loading}>
-                    <IconSquareRoundedChevronLeftFilled />
+                    <IconSquareRoundedChevronLeftFilled/>
                     <Text ml={6}>
                         Back
                     </Text>
@@ -482,7 +491,7 @@ export default function Create() {
                     <Text mr={6}>
                         Continue
                     </Text>
-                    <IconSquareRoundedChevronRightFilled />
+                    <IconSquareRoundedChevronRightFilled/>
                 </Button>
             </Group>
         </Container>
