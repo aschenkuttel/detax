@@ -85,7 +85,7 @@ const supportedNetworks = [
         chainId: '100',
         supportedTokens: [
             {
-                name: 'Tether USD on xDai',
+                name: 'TETHER USD on xDai',
                 symbol: 'USDT',
                 address: '0x4ECaBa5870353805a9F068101A40E0f32ed605C6'
             },
@@ -135,7 +135,7 @@ const supportedNetworks = [
         rpcUrl: 'https://optimism-mainnet.infura.io/v3/',
         supportedTokens: [
             {
-                name: 'Tether',
+                name: 'TETHER',
                 symbol: 'USDT',
                 address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58'
             },
@@ -157,7 +157,7 @@ const supportedNetworks = [
         chainId: '25',
         supportedTokens: [
             {
-                name: 'Tether',
+                name: 'TETHER',
                 symbol: 'USDT',
                 address: '0x66e428c3f67a68878562e79A0234c1F83c208770'
             },

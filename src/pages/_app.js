@@ -7,6 +7,7 @@ import { Web3Modal } from '@web3modal/react'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { mainnet, polygon, mantle } from 'wagmi/chains'
 import Header from '@/components/Header'
+import { ContextProvider } from '@/components/Context'
 
 
 const useStyles = createStyles((theme) => ({
@@ -41,18 +42,6 @@ function Wrapper({ children }) {
     )
 }
 
-const chains = [polygon, mainnet, mantle]
-const projectId = '31d48bb15ffbbdcebebc9aa3420c6d00'
-
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
-const wagmiConfig = createConfig({
-    autoConnect: true,
-    connectors: w3mConnectors({ projectId, chains }),
-    publicClient
-})
-
-const ethereumClient = new EthereumClient(wagmiConfig, chains)
-
 export default function App({ Component, pageProps }) {
     // (: TODO server component
     init('cf158c5c016a4372956cff76d697071a')
@@ -65,31 +54,22 @@ export default function App({ Component, pageProps }) {
                 <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
             </Head>
 
-            <MantineProvider
-                withGlobalStyles
-                withNormalizeCSS
-                theme={{
-                    /** Put your mantine theme override here */
-                    colorScheme: 'light',
-                    primaryColor: 'grape'
-                }}
-            >
-                <WagmiConfig config={wagmiConfig}>
+            <ContextProvider>
+                <MantineProvider
+                    withGlobalStyles
+                    withNormalizeCSS
+                    theme={{
+                        /** Put your mantine theme override here */
+                        colorScheme: 'light',
+                        primaryColor: 'grape'
+                    }}
+                >
                     <Notifications position='top-right' />
                     <Wrapper>
                         <Component {...pageProps} />
                     </Wrapper>
-                </WagmiConfig>
-            </MantineProvider>
-
-            <Web3Modal projectId={projectId}
-                       ethereumClient={ethereumClient}
-                       themeMode='light'
-                       themeVariables={{
-                           '--w3m-accent-color': '#f8f0fc',
-                           '--w3m-background-color': '#f8f0fc',
-                           '--w3m-accent-fill-color': '#be4bdb'
-                       }} />
+                </MantineProvider>
+            </ContextProvider>
         </>
     )
 }

@@ -3,13 +3,14 @@ import {Select} from '@mantine/core';
 export default function Countries() {
     return (
         <Select
-            label="Your favorite framework/library"
+            label="Select a country for detailed info"
             placeholder="Pick one"
             data={[
-                {value: 'react', label: 'React'},
-                {value: 'ng', label: 'Angular'},
-                {value: 'svelte', label: 'Svelte'},
-                {value: 'vue', label: 'Vue'},
+                {value: 'DE', label: 'Germany'},
+                {value: 'US', label: 'United States'},
+                {value: 'FI', label: 'Finland'},
+                {value: 'FR', label: 'France'},
+                {value: 'GB', label: 'Great Britain'},
             ]}
         />
     );

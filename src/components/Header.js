@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createStyles, Header, Container, Group, Burger, rem } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { Web3Button } from '@web3modal/react'
+import ConnectButton from '@/components/Connect'
 
 const useStyles = createStyles((theme) => ({
     header: {
@@ -71,7 +71,7 @@ export default function HeaderSimple() {
     ))
 
     return (
-        <Header height={72} zIndex={2}>
+        <Header height={60} zIndex={2}>
             <Container className={classes.header} size='xl'>
                 <p>LOGO</p>
 
@@ -79,7 +79,7 @@ export default function HeaderSimple() {
                     {items}
                 </Group>
 
-                <Web3Button/>
+                <ConnectButton/>
                 <Burger opened={opened} onClick={toggle} className={classes.burger} size='sm' />
             </Container>
         </Header>
