@@ -74,7 +74,7 @@ export default function Hero() {
                             Let <span className={classes.highlight}>DeTax</span> keep track of your transactions
                         </Title>
                         <Text color='dimmed' mt='md'>
-                            Crypto taxes made simple. Aggregate transactions across all chains and have a headache
+                            Crypto taxes made simple. Aggregate transactions across all chains to enjoy a headache
                             free tax filing.
                         </Text>
 

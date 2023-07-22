@@ -51,7 +51,8 @@ const links = [
     { label: 'Home', link: '/' },
     { label: 'Create', link: '/create' },
     { label: 'Reports', link: '/reports' },
-    { label: 'Info', link: '/info' }
+    { label: 'Info', link: '/info' },
+    { label: 'Countries', link: '/countries' }
 ]
 
 export default function HeaderSimple() {
