@@ -3,7 +3,7 @@ import {getAddress, formatUnits} from 'ethers'
 
 
 export default async function handler(req, res) {
-    const transactions = req.body.data['ethereumTransfers']['TokenTransfer']
+    const transactions = req.body.data['ethereumTransfers']['TokenTransfer'] || []
 
     const pdfDoc = await PDFDocument.create()
     pdfDoc.setTitle('Report')

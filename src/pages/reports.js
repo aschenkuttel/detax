@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from 'react'
-import { Button, createStyles, Input, Paper, rem, Select } from '@mantine/core'
+import { Button, createStyles, Input, Paper, rem, Text, Group, Stack } from '@mantine/core'
 import { Context } from '@/components/Context'
 import { IconPlus, IconX } from '@tabler/icons-react'
+import { flags, countriesData } from '@/data/countries'
 
 const useStyles = createStyles((theme) => ({
     outer: {
@@ -39,7 +40,7 @@ const useStyles = createStyles((theme) => ({
     columnContent: {
         display: 'flex',
         flexDirection: 'column',
-        gap: theme.spacing.md,
+        gap: theme.spacing.sm,
         padding: theme.spacing.md,
         overflowY: 'auto'
     },
@@ -51,7 +52,7 @@ const useStyles = createStyles((theme) => ({
     },
     iconHover: {
         '&:hover': {
-            scale: '1.2',
+            scale: '1.2'
         }
     }
 }))
@@ -59,6 +60,14 @@ const useStyles = createStyles((theme) => ({
 export default function Reports() {
     const { classes } = useStyles()
     const { reports, addReport, removeReport } = useContext(Context)
+    const [selectedReport, setSelectedReport] = useState(null)
+
+    const countryData = Object.fromEntries(countriesData.map((country) => [country.value, country]))
+    const SelectedFlag = flags[selectedReport?.country]
+
+    useEffect(() => {
+        setSelectedReport(reports[0] || null)
+    }, [reports])
 
     return (
         <div className={classes.outer}>
@@ -69,7 +78,8 @@ export default function Reports() {
 
                 <div className={classes.columnContent}>
                     {reports.map((report) => (
-                        <Button variant='subtle' key={report.address}>
+                        <Button variant={selectedReport?.address === report.address ? 'light' : 'subtle'} key={report.address}
+                                onClick={() => setSelectedReport(report)}>
                             <p className={classes.address}>
                                 {report.address}
                             </p>
@@ -88,6 +98,15 @@ export default function Reports() {
                 </div>
 
                 <div className={classes.columnContent}>
+                    {selectedReport && (
+                        <Group>
+                            <SelectedFlag/>
+
+                            <Text>
+                                {countryData[selectedReport.country].label}
+                            </Text>
+                        </Group>
+                    )}
                 </div>
             </div>
 
@@ -97,6 +116,15 @@ export default function Reports() {
                 </div>
 
                 <div className={classes.columnContent}>
+                    {selectedReport && (
+                        <Stack>
+                            {selectedReport.networks.map((network) => (
+                                <Text key={network.name}>
+                                    {network.name}
+                                </Text>
+                                ))}
+                        </Stack>
+                    )}
                 </div>
             </div>
 
@@ -106,7 +134,15 @@ export default function Reports() {
                 </div>
 
                 <div className={classes.columnContent}>
-
+                    {selectedReport && (
+                        <Stack>
+                            {selectedReport.tokens.map((token) => (
+                                <Text key={token.symbol}>
+                                    {token.symbol}
+                                </Text>
+                            ))}
+                        </Stack>
+                    )}
                 </div>
             </div>
         </div>
